@@ -19,12 +19,12 @@ from constants import ERROR_MESSAGES
 try:
     from dotenv import load_dotenv, find_dotenv
 
-    load_dotenv(find_dotenv("../.env"))
+    load_dotenv(find_dotenv("./.venv"))
 except ImportError:
     print("dotenv not installed, skipping...")
 
 WEBUI_NAME = "Open WebUI"
-shutil.copyfile("../build/favicon.png", "./static/favicon.png")
+#shutil.copyfile("../build/favicon.png", "./static/favicon.png")
 
 ####################################
 # ENV (dev,test,prod)
