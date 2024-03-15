@@ -53,19 +53,15 @@ ENV SENTENCE_TRANSFORMERS_HOME $RAG_EMBEDDING_MODEL_DIR
 
 WORKDIR /app/backend
 
-# install python dependencies
+# install python & dependencies
 COPY ./backend/requirements.txt ./requirements.txt
 
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3.11 ffmpeg libsm6 libxext6 pandoc netcat-openbsd && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install torch torchvision torchaudio --no-cache-dir
 RUN pip3 install -r requirements.txt --no-cache-dir
-
-# Install pandoc and netcat
-# RUN python -c "import pypandoc; pypandoc.download_pandoc()"
-RUN apt-get update \
-    && apt-get install -y pandoc netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
 
 # preload embedding model
 RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
