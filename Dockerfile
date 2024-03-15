@@ -15,7 +15,8 @@ COPY . .
 RUN npm run build
 
 
-FROM python:3.11-slim-bookworm as base
+#FROM python:3.11-slim-bookworm as base
+FROM cgr.dev/chainguard/pytorch-cuda12 as base
 
 ENV ENV=prod
 ENV PORT ""
