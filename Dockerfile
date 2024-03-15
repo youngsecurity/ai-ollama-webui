@@ -16,10 +16,17 @@ RUN npm run build
 
 
 #FROM python:3.11-slim-bookworm as base
-#FROM cgr.dev/chainguard/pytorch-cuda12 as base
-#FROM ubuntu:22.04 as base
-FROM nvidia/cuda:12.3.2-base-ubuntu22.04 as base
+FROM nvidia/cuda:12.3.2-devel-ubuntu22.04 as base
 
+# Set environment variables for NVIDIA Container Toolkit
+ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+ENV NVIDIA_DRIVER_CAPABILITIES=all
+ENV NVIDIA_VISIBLE_DEVICES=all
+
+# Install NVIDIA CUDA toolkit and libraries in the container
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends nvidia-cuda-toolkit nvidia-cuda-dev nvidia-cudnn-dev
+    
 ENV ENV=prod
 ENV PORT ""
 
@@ -41,32 +48,25 @@ ENV WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
 # RAG Embedding Model Settings
 # any sentence transformer model; models to use can be found at https://huggingface.co/models?library=sentence-transformers
 # Leaderboard: https://huggingface.co/spaces/mteb/leaderboard 
-# for better persormance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
+# for better performance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
 # IMPORTANT: If you change the default model (all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
 ENV RAG_EMBEDDING_MODEL="all-MiniLM-L6-v2"
-# device type for whisper tts and embbeding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
+# device type for whisper tts and embedding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
 ENV RAG_EMBEDDING_MODEL_DEVICE_TYPE="cuda"
 ENV RAG_EMBEDDING_MODEL_DIR="/app/backend/data/cache/embedding/models"
 ENV SENTENCE_TRANSFORMERS_HOME $RAG_EMBEDDING_MODEL_DIR
 
 ######## Preloaded models ########
-
 WORKDIR /app/backend
 
-# install python & dependencies
-COPY ./backend/requirements.txt ./requirements.txt
-
+# Install Python & dependencies in the container
 RUN apt-get update && \
     apt-get install -y --no-install-recommends python3.11 python3-pip ffmpeg libsm6 libxext6 pandoc netcat-openbsd && \
     rm -rf /var/lib/apt/lists/*
 
+COPY ./backend/requirements.txt ./requirements.txt
 RUN pip3 install torch torchvision torchaudio --no-cache-dir
 RUN pip3 install -r requirements.txt --no-cache-dir
-
-# preload embedding model
-RUN python -c "import os; from chromadb.utils import embedding_functions; sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name=os.environ['RAG_EMBEDDING_MODEL'], device=os.environ['RAG_EMBEDDING_MODEL_DEVICE_TYPE'])"
-# preload tts model
-RUN python -c "import os; from faster_whisper import WhisperModel; WhisperModel(os.environ['WHISPER_MODEL'], device='auto', compute_type='int8', download_root=os.environ['WHISPER_MODEL_DIR'])"
 
 # copy embedding weight from build
 RUN mkdir -p /root/.cache/chroma/onnx_models/all-MiniLM-L6-v2
