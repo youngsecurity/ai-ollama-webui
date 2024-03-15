@@ -57,7 +57,7 @@ WORKDIR /app/backend
 COPY ./backend/requirements.txt ./requirements.txt
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3.11 ffmpeg libsm6 libxext6 pandoc netcat-openbsd && \
+    apt-get install -y --no-install-recommends python3.11 python3-pip ffmpeg libsm6 libxext6 pandoc netcat-openbsd && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install torch torchvision torchaudio --no-cache-dir
