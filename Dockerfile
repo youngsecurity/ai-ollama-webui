@@ -24,7 +24,8 @@ RUN npm run build
 #RUN OPENWEBUI_CPU_TARGET="cpu_avx2" sh gen_linux.sh
 
 ######## CUDA WebUI backend ########
-FROM --platform=linux/amd64 nvidia/cuda:"$CUDA_VERSION"-devel-ubuntu22.04 AS cuda-build-amd64
+#FROM --platform=linux/amd64 nvidia/cuda:"$CUDA_VERSION"-devel-ubuntu22.04 AS cuda-build-amd64
+FROM --platform=linux/amd64 cgr.dev/chainguard/pytorch-cuda12:latest AS cuda-build-amd64
 
 # Set environment variables for NVIDIA Container Toolkit
 ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64 \
