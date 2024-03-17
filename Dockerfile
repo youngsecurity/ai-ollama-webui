@@ -79,4 +79,6 @@ COPY --from=build /app/package.json /app/package.json
 # copy backend files
 COPY ./backend .
 
+EXPOSE 8080
+
 CMD [ "bash", "start.sh"]
