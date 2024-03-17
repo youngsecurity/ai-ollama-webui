@@ -1,12 +1,9 @@
 # syntax=docker/dockerfile:1
 
-FROM node:alpine as build
+######## WebUI frontend ########
+FROM node:21-alpine3.19 as build
 
 WORKDIR /app
-
-# wget embedding model weight from alpine (does not exist from slim-buster)
-RUN wget "https://chroma-onnx-models.s3.amazonaws.com/all-MiniLM-L6-v2/onnx.tar.gz" -O - | \
-    tar -xzf - -C /app
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -14,9 +11,10 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-
-#FROM python:3.11-slim-bookworm as base
-FROM nvidia/cuda:12.3.2-devel-ubuntu22.04 as base
+######## WebUI backend ########
+ARG CUDA_VERSION=12.3.2
+#FROM nvidia/cuda:$CUDA_VERSION-devel-ubuntu22.04 as base
+FROM --platform=linux/amd64 nvidia/cuda:$CUDA_VERSION-devel-ubuntu22.04 AS cuda-build-amd64
 
 # Set environment variables for NVIDIA Container Toolkit
 ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64
@@ -24,9 +22,9 @@ ENV NVIDIA_DRIVER_CAPABILITIES=all
 ENV NVIDIA_VISIBLE_DEVICES=all
 
 # Install NVIDIA CUDA toolkit and libraries in the container
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends nvidia-cuda-toolkit nvidia-cuda-dev nvidia-cudnn-dev
-    
+#RUN apt-get update && \
+#    apt-get install -y --no-install-recommends nvidia-cuda-toolkit nvidia-cuda-dev nvidia-cudnn-dev
+
 ENV ENV=prod
 ENV PORT ""
 
@@ -51,7 +49,7 @@ ENV WHISPER_MODEL_DIR="/app/backend/data/cache/whisper/models"
 # for better performance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
 # IMPORTANT: If you change the default model (all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
 ENV RAG_EMBEDDING_MODEL="all-MiniLM-L6-v2"
-# device type for whisper tts and embedding models - "cpu" (default), "cuda" (nvidia gpu and CUDA required) or "mps" (apple silicon) - choosing this right can lead to better performance
+# device type for whisper tts and embedding models - "cpu" (default), "cuda" (NVIDIA GPU and CUDA required), or "mps" (apple silicon) - choosing this right can lead to better performance
 ENV RAG_EMBEDDING_MODEL_DEVICE_TYPE="cuda"
 ENV RAG_EMBEDDING_MODEL_DIR="/app/backend/data/cache/embedding/models"
 ENV SENTENCE_TRANSFORMERS_HOME $RAG_EMBEDDING_MODEL_DIR
