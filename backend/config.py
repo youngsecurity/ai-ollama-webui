@@ -104,7 +104,7 @@ CHANGELOG = changelog_json
 # CUSTOM_NAME
 ####################################
 
-CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "")
+CUSTOM_NAME = os.environ.get("CUSTOM_NAME", "Zero Trust GPT")
 if CUSTOM_NAME:
     try:
         r = requests.get(f"https://api.openwebui.com/api/v1/custom/{CUSTOM_NAME}")
