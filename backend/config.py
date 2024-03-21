@@ -219,7 +219,7 @@ if OLLAMA_BASE_URL == "" and OLLAMA_API_BASE_URL != "":
 
 if ENV == "prod":
     if OLLAMA_BASE_URL == "/ollama":
-        OLLAMA_BASE_URL = "http://host.docker.internal:11434"
+        OLLAMA_BASE_URL = "http://ollama:11434"
 
 
 OLLAMA_BASE_URLS = os.environ.get("OLLAMA_BASE_URLS", "")
@@ -331,7 +331,7 @@ CHROMA_DATA_PATH = f"{DATA_DIR}/vector_db"
 RAG_EMBEDDING_MODEL = os.environ.get("RAG_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 # device type ebbeding models - "cpu" (default), "cuda" (nvidia gpu required) or "mps" (apple silicon) - choosing this right can lead to better performance
 RAG_EMBEDDING_MODEL_DEVICE_TYPE = os.environ.get(
-    "RAG_EMBEDDING_MODEL_DEVICE_TYPE", "cpu"
+    "RAG_EMBEDDING_MODEL_DEVICE_TYPE", "cuda"
 )
 CHROMA_CLIENT = chromadb.PersistentClient(
     path=CHROMA_DATA_PATH,
