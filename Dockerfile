@@ -32,6 +32,7 @@ RUN npm run build
 ######## CUDA WebUI backend ########
 FROM --platform=linux/amd64 nvidia/cuda:"$CUDA_VERSION"-devel-ubuntu22.04 AS cuda-build-amd64
 #FROM --platform=linux/amd64 cgr.dev/chainguard/pytorch-cuda12:latest AS cuda-build-amd64 # fails with python requirements conflicts
+ENV RAG_EMBEDDING_MODEL_DEVICE_TYPE="cuda"
 
 # Set environment variables for NVIDIA Container Toolkit
 ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64 \
@@ -85,7 +86,7 @@ RUN apk update && \
     apk del /var/cache/apk/*.tbz2
 
 COPY ./backend/requirements.txt ./requirements.txt
-RUN pip3 install torch torchvision torchaudio --no-cache-dir && \
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 --no-cache-dir && \
     pip3 install -r requirements.txt --no-cache-dir
 
 # copy built frontend files
