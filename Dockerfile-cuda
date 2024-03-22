@@ -40,7 +40,7 @@ ENV LD_LIBRARY_PATH=/usr/local/nvidia/lib:/usr/local/nvidia/lib64 \
     NVIDIA_VISIBLE_DEVICES=all
 
 ENV ENV=prod \
-    PORT=8080
+    PORT=80
 
 ## Base URL Config ##
 ENV OLLAMA_BASE_URL="/ollama" \
@@ -97,6 +97,6 @@ COPY --from=build /app/package.json /app/package.json
 # copy backend files
 COPY ./backend .
 
-EXPOSE 8080
+EXPOSE 80
 
 CMD [ "bash", "start.sh"]

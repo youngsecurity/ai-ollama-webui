@@ -24,7 +24,7 @@ except ImportError:
     print("dotenv not installed, skipping...")
 
 WEBUI_NAME = "Zero Trust GPT"
-#shutil.copyfile("../build/favicon.png", "./static/favicon.png")
+shutil.copyfile("../build/favicon.png", "./static/favicon.png")
 
 ####################################
 # ENV (dev,test,prod)
